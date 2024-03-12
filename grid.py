@@ -23,8 +23,6 @@ class Road(Grid):
 class Robot(Grid):
     def __init__(self, n, m,param={}):
         super().__init__(n, m, param)
-        # if not isinstance(map[n,m], StratPos):
-        #     raise ValueError('Robot must be placed on a start position')
         self.vis = '#'
         self.skus = param['skus']
         self.typs = param['typs']
@@ -58,22 +56,11 @@ def visualize(store):
         for j in range(m):
             print(store[i,j], end=' ')
         print()
+    print('='*40)
 
 
 def create_demo_store():
-    # . . . . . . . . . . . 
-    # . O . O O . O O . O . 
-    # . O . O O . O O . O . 
-    # . O . O O . O O . O . 
-    # . O . O O . O O . O . 
-    # . O . O O . O O . O . 
-    # . O . O O . O O . O . 
-    # . O . O O . O O . O . 
-    # . O . O O . O O . O . 
-    # . . . . . . . . . . . 
-    n = 10
-    m = 11
-
+    n,m = 10,11
     shelves_col = [1,3,4,6,7,9]
     road_col = [0,2,5,8,10]
 
@@ -95,6 +82,4 @@ def create_demo_store():
     return store
 
 if __name__ == '__main__':
-    store = create_demo_store()
-    rob = Robot(5,0,store,{'skus':['A']})
-    visualize(store)
+    pass

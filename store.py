@@ -3,7 +3,7 @@ import pandas as pd
 import random
 import time
 
-import grid_object as go
+import grid as go
 
 class Store:
     def __init__(self, n:int, m:int):
@@ -23,7 +23,7 @@ class Store:
     def create_shelevs(self, col):
         for i in range(1, self.n-1):
             for j in col:
-                self.store[i,j] = go.Shelves(i,j,{'sku':[],'typ':[]})
+                self.store[i,j] = go.Shelves(i,j,{'sku':-1,'typ':-1})
         self.stage = 'shelves_created'
         self.movable_cols = set([i for i in range(self.m) if i not in col])
         self.shelev_cols = set(col)
@@ -65,7 +65,7 @@ class Store:
             raise ValueError('Shelves not created yet')
         self.store[n,m].sku = sku
         self.store[n,m].typ = typ
-        self.store[n,m].vis = '0'
+        self.store[n,m].vis = 'X'
 
     def seek_next_postion(self):
         valid_cols = set()
@@ -86,14 +86,16 @@ class Store:
             pre_col.append(next_col-1)
         if next_col+1 in self.movable_cols:
             pre_col.append(next_col+1)
-        col_step = min([x - self._robot.pos[1] for x in pre_col])
-        row_step = self._robot.pos[0] - int(self.n / 2) + 1
+        
+        idx = np.argmin([np.abs(x - self._robot.pos[1]) for x in pre_col])
+        col_step = pre_col[idx] - self._robot.pos[1]
 
+        row_step = - self._robot.pos[0] if self.n - 1 > 2 * self._robot.pos[0] else self.n - self._robot.pos[0] -1 
         self.store[self._robot.pos] = go.Road(self._robot.pos[0],self._robot.pos[1])
         self._robot.pos = (self._robot.pos[0]+row_step, self._robot.pos[1]+col_step)
         self.store[self._robot.pos] = self._robot
 
-        return col_step, row_step, np.abs(col_step) + np.abs(row_step)
+        return abs(col_step), abs(row_step), np.abs(col_step) + np.abs(row_step)
 
     def collect_sku_by_col(self):
         pre_col = []
@@ -102,26 +104,66 @@ class Store:
         if self._robot.pos[1] + 1 in self.shelev_cols:
             pre_col.append(self._robot.pos[1]+1)
 
-        typs_col = [self.store[i,x].typ for x in pre_col for i in range(1,self.n-1)]
-        skus_col = [self.store[i,x].sku for x in pre_col for i in range(1,self.n-1)]
+        shelev_col = [self.store[i,x] for x in pre_col for i in range(1,self.n-1)]
         
-        print(skus_col)
+        for entity in shelev_col:
+            if entity.typ in self._robot.typs and entity.sku > 0:
+                idx = self._robot.typs.index(entity.typ)
+                need_cnt = self._robot.skus[idx]
+                if entity.sku >= need_cnt:
+                    entity.sku -= need_cnt
+                    self._robot.skus.pop(idx)
+                    self._robot.typs.pop(idx)
+                else:
+                    self._robot.skus[idx] -= entity.sku
+                    entity.sku = 0
+                if entity.sku == 0:
+                    entity.typ = -1
+                    entity.sku = -1
+                    entity.vis = 'O'
 
-
-        return
+        self.store[self._robot.pos] = go.Road(self._robot.pos[0],self._robot.pos[1])
+        self._robot.pos = (self.n - self._robot.pos[0] - 1, self._robot.pos[1])
+        self.store[self._robot.pos] = self._robot
+    
+        return self.n -1
+    
+    def route_stratgy(self, visual=False):
+        sum_step = 0
+        while True:
+            next_col = self.seek_next_postion()
+            if next_col == -1:
+                print('Task finished')
+                print(self._robot.skus, self._robot.typs)
+                return
+            col_step, row_step, total_step = self.move_robot(next_col)
+            sum_step += total_step
+            if visual:
+                print(f'col_step: {col_step}, row_step: {row_step}, sum_step: {sum_step}')
+                self.visualize()
+                time.sleep(0.5)
+            col_step, row_step= 0, self.collect_sku_by_col()
+            sum_step += row_step
+            if visual:
+                print(f'col_step: {col_step}, row_step: {row_step}, sum_step: {sum_step}')
+                self.visualize()
+                time.sleep(0.5)
 
 
 def create_demo_store():
     store = Store(10,11)
     store.create_shelevs([1,3,4,6,7,9])
     store.create_road()
-    startpos = store.create_start_pos(2,5)
-    store.create_robot(startpos,{'skus':[4,5,6],'typs':[1,2,3]})
-    store.setup_shelves(5,3,2,1)
+    startpos = store.create_start_pos(0,5)
+    store.create_robot(startpos,{'skus':[2,5,6],'typs':[1,2,3]})
+    store.setup_shelves(5,1,2,1)
+    store.setup_shelves(6,3,3,2)
+    store.setup_shelves(8,3,4,3)
+    store.setup_shelves(5,6,4,2)
+    store.setup_shelves(6,7,5,3)
     store.visualize()
-    print(store.move_robot(store.seek_next_postion()))
-    store.collect_sku_by_col()
-    store.visualize()
+    store.route_stratgy(True)
+
     
 if __name__ == '__main__':
     create_demo_store()

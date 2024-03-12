@@ -2,26 +2,32 @@ import numpy as np
 import pandas as pd
 
 class Grid:
-    def __init__(self, n:int, m:int, map:np.array, param={}):
+    def __init__(self, n:int, m:int, param={}):
         self.pos = (n,m)
         self.params = param
-        self.vis = ' '
-        self.map = map
-        map[n,m] = self
+        self.vis = '_'
 
     def __str__(self):
         return self.vis
+    
+class StratPos(Grid):
+    def __init__(self, n, m,param={}):
+        super().__init__(n, m, param)
+        self.vis = 'S'
 
 class Road(Grid):
-    def __init__(self, n, m, map, param={}):
-        super().__init__(n, m, map, param)
+    def __init__(self, n, m,param={}):
+        super().__init__(n, m, param)
         self.vis = '.'
 
 class Robot(Grid):
-    def __init__(self, n, m, map, param):
-        super().__init__(n, m, map, param)
+    def __init__(self, n, m,param={}):
+        super().__init__(n, m, param)
+        # if not isinstance(map[n,m], StratPos):
+        #     raise ValueError('Robot must be placed on a start position')
         self.vis = '#'
         self.skus = param['skus']
+        self.typs = param['typs']
 
     def seek_col(self):
         n,m = self.map.shape
@@ -40,11 +46,10 @@ class Robot(Grid):
       
 
 class Shelves(Grid):
-    def __init__(self, n, m, map, param):
-        super().__init__(n, m, map, param)
+    def __init__(self, n, m,param={}):
+        super().__init__(n, m, param)
         self.vis = 'O'
         self.sku = param['sku']
-        self.qty = param['qty']
         self.typ = param['typ']
 
 def visualize(store):
@@ -83,7 +88,7 @@ def create_demo_store():
 
     for i in range(1,n-1,1):
         for j in shelves_col:
-            Shelves(i,j,store,{'sku':'A','qty':10,'typ':'A'})
+            Shelves(i,j,store,{'sku':'4','typ':'1'})
         for j in road_col:
             Road(i,j,store,{})
 
@@ -93,4 +98,3 @@ if __name__ == '__main__':
     store = create_demo_store()
     rob = Robot(5,0,store,{'skus':['A']})
     visualize(store)
-    print(rob.seek_col())

@@ -1,5 +1,4 @@
-import numpy as np
-import pandas as pd
+import time
 
 class Grid:
     def __init__(self, n:int, m:int, param={}):
@@ -26,7 +25,6 @@ class Robot(Grid):
         self.startPos = (-1,-1)
         self.vis = '#'
         self.tasks = param['tasks']
-        self.stage = 'idle'
         self.update_task()
 
     def update_task(self):
@@ -41,10 +39,6 @@ class Robot(Grid):
             self.nums.append(item[1])
             self.skus.append(item[0])
 
-        return True
-    
-    def update_supply_task(self, task):
-        
         return True
 
     def seek_col(self):
@@ -68,8 +62,8 @@ class Robot(Grid):
 class Shelves(Grid):
     def __init__(self, n, m,param={}):
         super().__init__(n, m, param)
+        self.upper = param['upper']
         self.vis = 'O'
-        self.num = param['num']
         self.sku = param['sku']
 
 def visualize(store):
@@ -79,4 +73,5 @@ def visualize(store):
             print(store[i,j], end=' ')
         print()
     print('='*40)
+    time.sleep(0.5)
  

@@ -16,8 +16,6 @@
   robot = rbg.generate_robot()
   # 生成智能体实例
   ```
-  
-  
 
 - 智能体有三种执行方案
   
@@ -29,8 +27,6 @@
   store.round_robin(0.5,0.8,False)
   # 交替进行，第一个参数为保有率低于0.5时进行上货，第二个参数为保有率高于0.8时进行出货
   ```
-  
-  
 
 - ``Task``和``Supply``的规范和含义
   
@@ -44,3 +40,6 @@
 
 - 关于读入
     由于尚不清楚详细规范，后续想使用此功能，请仿照``RandomStoreGenerator``中的``generate_goods``和``generate_supplys``方法，实现读入功能。同理，仿照``RandomRobotGenerator``中的``generate_tasks``方法，实现读入功能。
+
+- 关于返回每一列的货物信息
+    请使用``store.get_column_info()``方法，返回一个字典，key为列号，value为该列的货物信息（list）。

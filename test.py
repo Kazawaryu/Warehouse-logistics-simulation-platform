@@ -16,5 +16,5 @@ if __name__ == '__main__':
     # store.start_tasks()
     # store.start_supply()
     store.round_robin(min_rate=0.5, max_rate=0.51,visual=False)
-    print(store.get_info_by_col())
+    print(store.get_info_by_col()) # 返回字典，key为列号，value为该列存储的货物信息
     print(store.get_steps())

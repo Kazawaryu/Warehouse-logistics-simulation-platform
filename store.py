@@ -298,6 +298,18 @@ class Store:
                 print(f'col_step: {col_step}, row_step: {row_step}, sum_step: {sum_step}')
                 self.visualize()
 
+    def get_info_by_col(self):
+        res = {}
+        for col in self.shelev_cols:
+            res[col] = []
+            for i in range(1,self.n-1):
+                sku = self.store[i,col].sku
+                for s in sku:
+                    if s != -1:
+                        res[col].append(s)
+        return res
+
+
 
     def round_robin(self, min_rate, max_rate, visual):
         # 任务和补货轮询，当库存小于一定值时，进行补货

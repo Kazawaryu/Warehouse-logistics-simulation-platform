@@ -37,7 +37,7 @@ class Store:
     def create_shelevs(self, col, upper):
         for i in range(1, self.n-1):
             for j in col:
-                self.store[i,j] = go.Shelves(i,j,{'sku':[-1], 'upper':upper})
+                self.store[i,j] = go.Shelves(i,j,{'sku':[], 'upper':upper})
 
         self.movable_cols = set([i for i in range(self.m) if i not in col])
         self.shelev_cols = set(col)
